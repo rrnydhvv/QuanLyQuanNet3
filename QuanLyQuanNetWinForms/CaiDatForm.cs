@@ -1,44 +1,38 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using MaterialSkin;
+using MaterialSkin.Controls;
 
 namespace QuanLyQuanNetWinForms
 {
-    public partial class CaiDatForm : Form
+    public partial class CaiDatForm : MaterialForm
     {
-        private Button? btnDangXuat, btnThoat;
+        private MaterialButton? btnDangXuat, btnThoat;
 
         public CaiDatForm()
         {
             InitializeComponent();
+            SetupMaterialTheme();
         }
 
         private void InitializeComponent()
         {
             this.Text = "Cài Đặt";
             this.Size = new Size(400, 300);
-            this.BackColor = Color.White;
             this.StartPosition = FormStartPosition.CenterParent;
 
-            // Buttons
-            btnDangXuat = new Button();
+            // Material Buttons
+            btnDangXuat = new MaterialButton();
             btnDangXuat.Text = "Đăng Xuất";
             btnDangXuat.Location = new Point(100, 50);
             btnDangXuat.Size = new Size(200, 50);
-            btnDangXuat.BackColor = Color.FromArgb(244, 67, 54);
-            btnDangXuat.ForeColor = Color.White;
-            btnDangXuat.FlatStyle = FlatStyle.Flat;
-            btnDangXuat.Font = new Font("Segoe UI", 12, FontStyle.Bold);
             btnDangXuat.Click += BtnDangXuat_Click;
 
-            btnThoat = new Button();
+            btnThoat = new MaterialButton();
             btnThoat.Text = "Thoát Ứng Dụng";
             btnThoat.Location = new Point(100, 120);
             btnThoat.Size = new Size(200, 50);
-            btnThoat.BackColor = Color.FromArgb(33, 33, 33);
-            btnThoat.ForeColor = Color.White;
-            btnThoat.FlatStyle = FlatStyle.Flat;
-            btnThoat.Font = new Font("Segoe UI", 12, FontStyle.Bold);
             btnThoat.Click += (s, e) => Application.Exit();
 
             // Add controls
@@ -46,25 +40,55 @@ namespace QuanLyQuanNetWinForms
             this.Controls.Add(btnThoat);
         }
 
-        private void BtnDangXuat_Click(object sender, EventArgs e)
+        private void SetupMaterialTheme()
         {
-            DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất?",
-                "Đăng xuất", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager.AddFormToManage(this);
+            materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
+            materialSkinManager.ColorScheme = new ColorScheme(
+                Primary.Teal600, Primary.Teal700,
+                Primary.Teal100, Accent.Orange200, TextShade.WHITE);
+        }
 
-            if (result == DialogResult.Yes)
+        private void BtnDangXuat_Click(object? sender, EventArgs e)
+        {
+            try
             {
-                // Đóng tất cả form và quay về login
-                foreach (Form form in Application.OpenForms)
+                if (ShowConfirm("Bạn có chắc chắn muốn đăng xuất?"))
                 {
-                    if (!(form is LoginForm))
+                    // Đóng tất cả form và quay về login
+                    foreach (Form form in Application.OpenForms)
                     {
-                        form.Close();
+                        if (!(form is LoginForm))
+                        {
+                            form.Close();
+                        }
                     }
-                }
 
-                LoginForm loginForm = new LoginForm();
-                loginForm.Show();
+                    LoginForm loginForm = new LoginForm();
+                    loginForm.Show();
+                    ShowSuccess("Đăng xuất thành công!");
+                }
             }
+            catch (Exception ex)
+            {
+                ShowError("Lỗi khi đăng xuất", ex);
+            }
+        }
+
+        private void ShowError(string message, Exception ex)
+        {
+            MessageBox.Show($"{message}: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void ShowSuccess(string message)
+        {
+            MessageBox.Show(message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private bool ShowConfirm(string message)
+        {
+            return MessageBox.Show(message, "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
         }
     }
 }

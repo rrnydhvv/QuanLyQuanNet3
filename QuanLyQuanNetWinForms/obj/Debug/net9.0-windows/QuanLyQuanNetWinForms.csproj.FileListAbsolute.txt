@@ -20,3 +20,5 @@ C:\Users\phucb\Documents\Code\vs-dotNET\QuanLyQuanNet\QuanLyQuanNetWinForms\obj\
 C:\Users\phucb\Documents\Code\vs-dotNET\QuanLyQuanNet\QuanLyQuanNetWinForms\obj\Debug\net9.0-windows\QuanLyQuanNetWinForms.pdb
 C:\Users\phucb\Documents\Code\vs-dotNET\QuanLyQuanNet\QuanLyQuanNetWinForms\obj\Debug\net9.0-windows\QuanLyQuanNetWinForms.genruntimeconfig.cache
 C:\Users\phucb\Documents\Code\vs-dotNET\QuanLyQuanNet\QuanLyQuanNetWinForms\obj\Debug\net9.0-windows\ref\QuanLyQuanNetWinForms.dll
+C:\Users\phucb\Documents\Code\vs-dotNET\QuanLyQuanNet\QuanLyQuanNetWinForms\obj\Debug\net9.0-windows\QuanLyQuanNetWinForms.sourcelink.json
+C:\Users\phucb\Documents\Code\vs-dotNET\QuanLyQuanNet\QuanLyQuanNetWinForms\bin\Debug\net9.0-windows\MaterialSkin.dll

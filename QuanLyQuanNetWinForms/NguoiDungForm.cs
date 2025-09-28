@@ -3,19 +3,22 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using MaterialSkin;
+using MaterialSkin.Controls;
 
 namespace QuanLyQuanNetWinForms
 {
-    public partial class NguoiDungForm : Form
+    public partial class NguoiDungForm : MaterialForm
     {
         private int currentUserId;
         private DataGridView? dgvNguoiDung;
-        private Button? btnAdd, btnEdit, btnDelete, btnRefresh;
+        private MaterialButton? btnAdd, btnEdit, btnDelete, btnRefresh;
 
         public NguoiDungForm(int userId)
         {
             currentUserId = userId;
             InitializeComponent();
+            SetupMaterialTheme();
             LoadData();
         }
 
@@ -23,7 +26,7 @@ namespace QuanLyQuanNetWinForms
         {
             this.Text = "Quản Lý Người Dùng";
             this.Size = new Size(1200, 700);
-            this.BackColor = Color.White;
+            this.StartPosition = FormStartPosition.CenterParent;
 
             // DataGridView
             dgvNguoiDung = new DataGridView();
@@ -32,42 +35,33 @@ namespace QuanLyQuanNetWinForms
             dgvNguoiDung.ReadOnly = true;
             dgvNguoiDung.AllowUserToAddRows = false;
             dgvNguoiDung.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvNguoiDung.BackgroundColor = Color.White;
+            dgvNguoiDung.BorderStyle = BorderStyle.None;
+            dgvNguoiDung.GridColor = Color.FromArgb(240, 240, 240);
 
-            // Buttons
-            btnAdd = new Button();
+            // Material Buttons
+            btnAdd = new MaterialButton();
             btnAdd.Text = "Thêm Người Dùng";
             btnAdd.Location = new Point(10, 580);
             btnAdd.Size = new Size(140, 40);
-            btnAdd.BackColor = Color.FromArgb(76, 175, 80);
-            btnAdd.ForeColor = Color.White;
-            btnAdd.FlatStyle = FlatStyle.Flat;
             btnAdd.Click += BtnAdd_Click;
 
-            btnEdit = new Button();
+            btnEdit = new MaterialButton();
             btnEdit.Text = "Sửa";
             btnEdit.Location = new Point(160, 580);
             btnEdit.Size = new Size(80, 40);
-            btnEdit.BackColor = Color.FromArgb(255, 193, 7);
-            btnEdit.ForeColor = Color.White;
-            btnEdit.FlatStyle = FlatStyle.Flat;
             btnEdit.Click += BtnEdit_Click;
 
-            btnDelete = new Button();
+            btnDelete = new MaterialButton();
             btnDelete.Text = "Xóa";
             btnDelete.Location = new Point(250, 580);
             btnDelete.Size = new Size(80, 40);
-            btnDelete.BackColor = Color.FromArgb(244, 67, 54);
-            btnDelete.ForeColor = Color.White;
-            btnDelete.FlatStyle = FlatStyle.Flat;
             btnDelete.Click += BtnDelete_Click;
 
-            btnRefresh = new Button();
+            btnRefresh = new MaterialButton();
             btnRefresh.Text = "Làm Mới";
             btnRefresh.Location = new Point(340, 580);
             btnRefresh.Size = new Size(100, 40);
-            btnRefresh.BackColor = Color.FromArgb(33, 150, 243);
-            btnRefresh.ForeColor = Color.White;
-            btnRefresh.FlatStyle = FlatStyle.Flat;
             btnRefresh.Click += (s, e) => LoadData();
 
             // Add controls
@@ -76,6 +70,16 @@ namespace QuanLyQuanNetWinForms
             this.Controls.Add(btnEdit);
             this.Controls.Add(btnDelete);
             this.Controls.Add(btnRefresh);
+        }
+
+        private void SetupMaterialTheme()
+        {
+            var materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager.AddFormToManage(this);
+            materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
+            materialSkinManager.ColorScheme = new ColorScheme(
+                Primary.Teal600, Primary.Teal700,
+                Primary.Teal100, Accent.Orange200, TextShade.WHITE);
         }
 
         private void LoadData()
@@ -91,16 +95,24 @@ namespace QuanLyQuanNetWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu người dùng: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowError("Lỗi tải dữ liệu người dùng", ex);
             }
         }
 
         private void BtnAdd_Click(object? sender, EventArgs e)
         {
-            NguoiDungDialog dialog = new NguoiDungDialog(false);
-            if (dialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                LoadData();
+                NguoiDungDialog dialog = new NguoiDungDialog(false);
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    LoadData();
+                    ShowSuccess("Thêm người dùng thành công!");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError("Lỗi khi thêm người dùng", ex);
             }
         }
 
@@ -108,20 +120,28 @@ namespace QuanLyQuanNetWinForms
         {
             if (dgvNguoiDung?.SelectedRows.Count > 0)
             {
-                var value = dgvNguoiDung.SelectedRows[0].Cells["TenDangNhap"].Value;
-                if (value != null)
+                try
                 {
-                    string tenDangNhap = value.ToString()!;
-                    NguoiDungDialog dialog = new NguoiDungDialog(true, tenDangNhap);
-                    if (dialog.ShowDialog() == DialogResult.OK)
+                    var value = dgvNguoiDung.SelectedRows[0].Cells["TenDangNhap"].Value;
+                    if (value != null)
                     {
-                        LoadData();
+                        string tenDangNhap = value.ToString()!;
+                        NguoiDungDialog dialog = new NguoiDungDialog(true, tenDangNhap);
+                        if (dialog.ShowDialog() == DialogResult.OK)
+                        {
+                            LoadData();
+                            ShowSuccess("Cập nhật người dùng thành công!");
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    ShowError("Lỗi khi sửa người dùng", ex);
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn người dùng để sửa!");
+                ShowWarning("Vui lòng chọn người dùng để sửa!");
             }
         }
 
@@ -129,37 +149,54 @@ namespace QuanLyQuanNetWinForms
         {
             if (dgvNguoiDung?.SelectedRows.Count > 0)
             {
-                var value = dgvNguoiDung.SelectedRows[0].Cells["TenDangNhap"].Value;
-                var tenValue = dgvNguoiDung.SelectedRows[0].Cells["HoTen"].Value;
-                if (value != null && tenValue != null)
+                try
                 {
-                    string tenDangNhap = value.ToString()!;
-                    string hoTen = tenValue.ToString()!;
-
-                    DialogResult result = MessageBox.Show($"Bạn có chắc muốn xóa người dùng '{hoTen}'?",
-                        "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    if (result == DialogResult.Yes)
+                    var value = dgvNguoiDung.SelectedRows[0].Cells["TenDangNhap"].Value;
+                    var tenValue = dgvNguoiDung.SelectedRows[0].Cells["HoTen"].Value;
+                    if (value != null && tenValue != null)
                     {
-                        try
+                        string tenDangNhap = value.ToString()!;
+                        string hoTen = tenValue.ToString()!;
+
+                        if (ShowConfirm($"Bạn có chắc muốn xóa người dùng '{hoTen}'?"))
                         {
                             DatabaseHelper.ExecuteStoredProcedure("sp_DeleteNguoiDung",
                                 new SqlParameter[] { new SqlParameter("@TenDangNhap", tenDangNhap) });
 
-                            MessageBox.Show("Xóa người dùng thành công!");
                             LoadData();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Lỗi khi xóa: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            ShowSuccess("Xóa người dùng thành công!");
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    ShowError("Lỗi khi xóa người dùng", ex);
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn người dùng để xóa!");
+                ShowWarning("Vui lòng chọn người dùng để xóa!");
             }
+        }
+
+        private void ShowError(string message, Exception ex)
+        {
+            MessageBox.Show($"{message}: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void ShowSuccess(string message)
+        {
+            MessageBox.Show(message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ShowWarning(string message)
+        {
+            MessageBox.Show(message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private bool ShowConfirm(string message)
+        {
+            return MessageBox.Show(message, "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
         }
     }
 }

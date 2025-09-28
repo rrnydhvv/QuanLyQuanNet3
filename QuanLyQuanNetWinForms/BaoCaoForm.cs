@@ -3,44 +3,41 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using MaterialSkin;
+using MaterialSkin.Controls;
 
 namespace QuanLyQuanNetWinForms
 {
-    public partial class BaoCaoForm : Form
+    public partial class BaoCaoForm : MaterialForm
     {
         private int currentUserId;
         private DataGridView? dgvBaoCao;
-        private Button? btnThongKeMayTinh, btnBaoCaoChiPhi;
+        private MaterialButton? btnThongKeMayTinh, btnBaoCaoChiPhi;
 
         public BaoCaoForm(int userId)
         {
             currentUserId = userId;
             InitializeComponent();
+            SetupMaterialTheme();
         }
 
         private void InitializeComponent()
         {
             this.Text = "Báo Cáo và Thống Kê";
             this.Size = new Size(1200, 700);
-            this.BackColor = Color.White;
+            this.StartPosition = FormStartPosition.CenterParent;
 
-            // Buttons
-            btnThongKeMayTinh = new Button();
+            // Material Buttons
+            btnThongKeMayTinh = new MaterialButton();
             btnThongKeMayTinh.Text = "Thống Kê Máy Tính";
             btnThongKeMayTinh.Location = new Point(10, 10);
             btnThongKeMayTinh.Size = new Size(150, 40);
-            btnThongKeMayTinh.BackColor = Color.FromArgb(33, 150, 243);
-            btnThongKeMayTinh.ForeColor = Color.White;
-            btnThongKeMayTinh.FlatStyle = FlatStyle.Flat;
             btnThongKeMayTinh.Click += BtnThongKeMayTinh_Click;
 
-            btnBaoCaoChiPhi = new Button();
+            btnBaoCaoChiPhi = new MaterialButton();
             btnBaoCaoChiPhi.Text = "Báo Cáo Chi Phí Bảo Trì";
             btnBaoCaoChiPhi.Location = new Point(170, 10);
             btnBaoCaoChiPhi.Size = new Size(180, 40);
-            btnBaoCaoChiPhi.BackColor = Color.FromArgb(156, 39, 176);
-            btnBaoCaoChiPhi.ForeColor = Color.White;
-            btnBaoCaoChiPhi.FlatStyle = FlatStyle.Flat;
             btnBaoCaoChiPhi.Click += BtnBaoCaoChiPhi_Click;
 
             // DataGridView
@@ -60,7 +57,17 @@ namespace QuanLyQuanNetWinForms
             this.Controls.Add(dgvBaoCao);
         }
 
-        private void BtnThongKeMayTinh_Click(object sender, EventArgs e)
+        private void SetupMaterialTheme()
+        {
+            var materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager.AddFormToManage(this);
+            materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
+            materialSkinManager.ColorScheme = new ColorScheme(
+                Primary.Teal600, Primary.Teal700,
+                Primary.Teal100, Accent.Orange200, TextShade.WHITE);
+        }
+
+        private void BtnThongKeMayTinh_Click(object? sender, EventArgs e)
         {
             try
             {
@@ -70,15 +77,16 @@ namespace QuanLyQuanNetWinForms
                 if (dt != null && dgvBaoCao != null)
                 {
                     dgvBaoCao.DataSource = dt;
+                    ShowSuccess("Tải thống kê máy tính thành công!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải thống kê máy tính: " + ex.Message);
+                ShowError("Lỗi tải thống kê máy tính", ex);
             }
         }
 
-        private void BtnBaoCaoChiPhi_Click(object sender, EventArgs e)
+        private void BtnBaoCaoChiPhi_Click(object? sender, EventArgs e)
         {
             try
             {
@@ -88,12 +96,23 @@ namespace QuanLyQuanNetWinForms
                 if (dt != null && dgvBaoCao != null)
                 {
                     dgvBaoCao.DataSource = dt;
+                    ShowSuccess("Tải báo cáo chi phí bảo trì thành công!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải báo cáo chi phí bảo trì: " + ex.Message);
+                ShowError("Lỗi tải báo cáo chi phí bảo trì", ex);
             }
+        }
+
+        private void ShowError(string message, Exception ex)
+        {
+            MessageBox.Show($"{message}: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void ShowSuccess(string message)
+        {
+            MessageBox.Show(message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

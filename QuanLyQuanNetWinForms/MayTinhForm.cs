@@ -3,19 +3,20 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using MaterialSkin;
+using MaterialSkin.Controls;
 
 namespace QuanLyQuanNetWinForms
 {
-    public partial class MayTinhForm : Form
+    public partial class MayTinhForm : MaterialForm
     {
-        private int currentUserId;
         private DataGridView? dgvMayTinh;
-        private Button? btnAdd, btnEdit, btnDelete, btnRefresh;
+        private MaterialButton? btnAdd, btnEdit, btnDelete, btnRefresh;
 
-        public MayTinhForm(int userId)
+        public MayTinhForm()
         {
-            currentUserId = userId;
             InitializeComponent();
+            SetupMaterialTheme();
             LoadData();
         }
 
@@ -23,7 +24,7 @@ namespace QuanLyQuanNetWinForms
         {
             this.Text = "Quản Lý Máy Tính";
             this.Size = new Size(1200, 700);
-            this.BackColor = Color.White;
+            this.StartPosition = FormStartPosition.CenterParent;
 
             // DataGridView
             dgvMayTinh = new DataGridView();
@@ -36,41 +37,29 @@ namespace QuanLyQuanNetWinForms
             dgvMayTinh.BorderStyle = BorderStyle.None;
             dgvMayTinh.GridColor = Color.FromArgb(240, 240, 240);
 
-            // Buttons
-            btnAdd = new Button();
+            // Material Buttons
+            btnAdd = new MaterialButton();
             btnAdd.Text = "Thêm Máy Tính";
             btnAdd.Location = new Point(10, 580);
             btnAdd.Size = new Size(120, 40);
-            btnAdd.BackColor = Color.FromArgb(76, 175, 80);
-            btnAdd.ForeColor = Color.White;
-            btnAdd.FlatStyle = FlatStyle.Flat;
             btnAdd.Click += BtnAdd_Click;
 
-            btnEdit = new Button();
+            btnEdit = new MaterialButton();
             btnEdit.Text = "Sửa";
             btnEdit.Location = new Point(140, 580);
             btnEdit.Size = new Size(80, 40);
-            btnEdit.BackColor = Color.FromArgb(255, 193, 7);
-            btnEdit.ForeColor = Color.White;
-            btnEdit.FlatStyle = FlatStyle.Flat;
             btnEdit.Click += BtnEdit_Click;
 
-            btnDelete = new Button();
+            btnDelete = new MaterialButton();
             btnDelete.Text = "Xóa";
             btnDelete.Location = new Point(230, 580);
             btnDelete.Size = new Size(80, 40);
-            btnDelete.BackColor = Color.FromArgb(244, 67, 54);
-            btnDelete.ForeColor = Color.White;
-            btnDelete.FlatStyle = FlatStyle.Flat;
             btnDelete.Click += BtnDelete_Click;
 
-            btnRefresh = new Button();
+            btnRefresh = new MaterialButton();
             btnRefresh.Text = "Làm Mới";
             btnRefresh.Location = new Point(320, 580);
             btnRefresh.Size = new Size(100, 40);
-            btnRefresh.BackColor = Color.FromArgb(33, 150, 243);
-            btnRefresh.ForeColor = Color.White;
-            btnRefresh.FlatStyle = FlatStyle.Flat;
             btnRefresh.Click += (s, e) => LoadData();
 
             // Add controls
@@ -79,6 +68,16 @@ namespace QuanLyQuanNetWinForms
             this.Controls.Add(btnEdit);
             this.Controls.Add(btnDelete);
             this.Controls.Add(btnRefresh);
+        }
+
+        private void SetupMaterialTheme()
+        {
+            var materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager.AddFormToManage(this);
+            materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
+            materialSkinManager.ColorScheme = new ColorScheme(
+                Primary.Teal600, Primary.Teal700,
+                Primary.Teal100, Accent.Orange200, TextShade.WHITE);
         }
 
         private void LoadData()
@@ -94,16 +93,24 @@ namespace QuanLyQuanNetWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu máy tính: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowError("Lỗi tải dữ liệu máy tính", ex);
             }
         }
 
         private void BtnAdd_Click(object? sender, EventArgs e)
         {
-            MayTinhDialog dialog = new MayTinhDialog(false);
-            if (dialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                LoadData();
+                MayTinhDialog dialog = new MayTinhDialog(false);
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    LoadData();
+                    ShowSuccess("Thêm máy tính thành công!");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError("Lỗi khi thêm máy tính", ex);
             }
         }
 
@@ -111,20 +118,28 @@ namespace QuanLyQuanNetWinForms
         {
             if (dgvMayTinh?.SelectedRows.Count > 0)
             {
-                var value = dgvMayTinh.SelectedRows[0].Cells["MaMay"].Value;
-                if (value != null)
+                try
                 {
-                    string maMay = value.ToString()!;
-                    MayTinhDialog dialog = new MayTinhDialog(true, maMay);
-                    if (dialog.ShowDialog() == DialogResult.OK)
+                    var value = dgvMayTinh.SelectedRows[0].Cells["MaMay"].Value;
+                    if (value != null)
                     {
-                        LoadData();
+                        string maMay = value.ToString()!;
+                        MayTinhDialog dialog = new MayTinhDialog(true, maMay);
+                        if (dialog.ShowDialog() == DialogResult.OK)
+                        {
+                            LoadData();
+                            ShowSuccess("Cập nhật máy tính thành công!");
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    ShowError("Lỗi khi sửa máy tính", ex);
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn máy tính để sửa!");
+                ShowWarning("Vui lòng chọn máy tính để sửa!");
             }
         }
 
@@ -132,37 +147,54 @@ namespace QuanLyQuanNetWinForms
         {
             if (dgvMayTinh?.SelectedRows.Count > 0)
             {
-                var value = dgvMayTinh.SelectedRows[0].Cells["MaMay"].Value;
-                var tenValue = dgvMayTinh.SelectedRows[0].Cells["TenMay"].Value;
-                if (value != null && tenValue != null)
+                try
                 {
-                    string maMay = value.ToString()!;
-                    string tenMay = tenValue.ToString()!;
-
-                    DialogResult result = MessageBox.Show($"Bạn có chắc muốn xóa máy tính '{tenMay}'?",
-                        "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    if (result == DialogResult.Yes)
+                    var value = dgvMayTinh.SelectedRows[0].Cells["MaMay"].Value;
+                    var tenValue = dgvMayTinh.SelectedRows[0].Cells["TenMay"].Value;
+                    if (value != null && tenValue != null)
                     {
-                        try
+                        string maMay = value.ToString()!;
+                        string tenMay = tenValue.ToString()!;
+
+                        if (ShowConfirm($"Bạn có chắc muốn xóa máy tính '{tenMay}'?"))
                         {
                             DatabaseHelper.ExecuteStoredProcedure("sp_DeleteMayTinh",
                                 new SqlParameter[] { new SqlParameter("@MaMay", maMay) });
 
-                            MessageBox.Show("Xóa máy tính thành công!");
                             LoadData();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Lỗi khi xóa: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            ShowSuccess("Xóa máy tính thành công!");
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    ShowError("Lỗi khi xóa máy tính", ex);
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn máy tính để xóa!");
+                ShowWarning("Vui lòng chọn máy tính để xóa!");
             }
+        }
+
+        private void ShowError(string message, Exception ex)
+        {
+            MessageBox.Show($"{message}: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void ShowSuccess(string message)
+        {
+            MessageBox.Show(message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ShowWarning(string message)
+        {
+            MessageBox.Show(message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private bool ShowConfirm(string message)
+        {
+            return MessageBox.Show(message, "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
         }
     }
 }

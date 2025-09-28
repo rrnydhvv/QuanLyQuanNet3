@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "/aBL7soweCI=",
+  "dgSpecHash": "5g1tHrymypY=",
   "success": true,
   "projectFilePath": "C:\\Users\\phucb\\Documents\\Code\\vs-dotNET\\QuanLyQuanNet\\QuanLyQuanNetWinForms\\QuanLyQuanNetWinForms.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\phucb\\.nuget\\packages\\materialskin.2\\2.3.1\\materialskin.2.2.3.1.nupkg.sha512",
     "C:\\Users\\phucb\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.0\\microsoft.netcore.platforms.3.1.0.nupkg.sha512",
     "C:\\Users\\phucb\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",
     "C:\\Users\\phucb\\.nuget\\packages\\runtime.native.system.data.sqlclient.sni\\4.7.0\\runtime.native.system.data.sqlclient.sni.4.7.0.nupkg.sha512",
